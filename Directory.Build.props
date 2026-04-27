@@ -1,0 +1,6 @@
+<Project>
+  <PropertyGroup>
+    <LangVersion>latest</LangVersion>
+    <NoWarn>$(NoWarn);EF1001;NETSDK1138</NoWarn>
+  </PropertyGroup>
+</Project>
