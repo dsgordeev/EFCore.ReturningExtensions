@@ -1,0 +1,43 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <NoWarn>$(NoWarn);EF1001</NoWarn>
+
+    <PackageId>EFCore.ReturningExtensions.SqlServer</PackageId>
+    <Version>8.1.0</Version>
+    <Title>EF Core Returning Extensions for SQL Server</Title>
+    <Authors>efcore-returning-extensions</Authors>
+    <Description>SQL Server provider implementation for EF Core OUTPUT clause extensions. Adds support for UPDATE and DELETE operations with OUTPUT clause returning affected rows data.</Description>
+    <Copyright>Copyright © 2026</Copyright>
+    <PackageProjectUrl>https://github.com/dsgordeev/EFCore.ReturningExtensions</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/dsgordeev/EFCore.ReturningExtensions</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>efcore;entity-framework-core;sqlserver;mssql;output;returning;update;delete</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+
+    <SignAssembly>false</SignAssembly>
+    <DelaySign>false</DelaySign>
+
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\EfCore.ReturningExtensions\EfCore.ReturningExtensions.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="7.0.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="[8.0.0, 10.0.0)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="README.md">
+      <PackagePath>\</PackagePath>
+      <Pack>True</Pack>
+    </None>
+  </ItemGroup>
+
+</Project>
