@@ -1,0 +1,41 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+
+    <PackageId>EFCore.ReturningExtensions.Npgsql</PackageId>
+    <Version>10.1.1</Version>
+    <Title>EF Core Returning Extensions for PostgreSQL/Npgsql</Title>
+    <Authors>efcore-returning-extensions</Authors>
+    <Description>PostgreSQL/Npgsql provider implementation for EF Core RETURNING clause extensions. Adds support for UPDATE and DELETE operations with RETURNING clause.</Description>
+    <Copyright>Copyright © 2026</Copyright>
+    <PackageProjectUrl>https://github.com/dsgordeev/EFCore.ReturningExtensions</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/dsgordeev/EFCore.ReturningExtensions</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>efcore;entity-framework-core;postgresql;npgsql;returning;output;update;delete</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+
+    <SignAssembly>false</SignAssembly>
+    <DelaySign>false</DelaySign>
+
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\EfCore.ReturningExtensions\EfCore.ReturningExtensions.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="[10.0.0, 12.0.0)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
+
+</Project>
