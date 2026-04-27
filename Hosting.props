@@ -1,0 +1,8 @@
+<Project>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.33" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.33" />
+  </ItemGroup>
+
+</Project>
