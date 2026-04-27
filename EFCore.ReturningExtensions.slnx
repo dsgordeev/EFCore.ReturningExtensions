@@ -1,0 +1,13 @@
+<Solution>
+  <Folder Name="/SolutionItems/">
+    <File Path="Directory.Build.props" />
+    <File Path="global.json" />
+    <File Path="LICENSE" />
+    <File Path="README.md" />
+  </Folder>
+  <Project Path="EFCore.ReturningExtensions.Npgsql/EFCore.ReturningExtensions.Npgsql.csproj" />
+  <Project Path="EFCore.ReturningExtensions.Sqlite/EFCore.ReturningExtensions.Sqlite.csproj" />
+  <Project Path="EFCore.ReturningExtensions.SqlServer/EFCore.ReturningExtensions.SqlServer.csproj" />
+  <Project Path="EFCore.ReturningExtensions.Tests/EFCore.ReturningExtensions.Tests.csproj" />
+  <Project Path="EFCore.ReturningExtensions/EFCore.ReturningExtensions.csproj" />
+</Solution>
