@@ -1,0 +1,13 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\EFCore.ReturningExtensions.NonQueryPatch.Npgsql\EFCore.ReturningExtensions.NonQueryPatch.Npgsql.csproj" />
+    <ProjectReference Include="..\EfCore.ReturningExtensions\EfCore.ReturningExtensions.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="6.0.3" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="[6.0.5, 7.0.0)" />
+  </ItemGroup>
+
+</Project>

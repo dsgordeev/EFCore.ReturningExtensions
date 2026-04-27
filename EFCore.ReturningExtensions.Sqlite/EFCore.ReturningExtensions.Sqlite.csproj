@@ -1,0 +1,12 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\EFCore.ReturningExtensions.NonQueryPatch.Sqlite\EFCore.ReturningExtensions.NonQueryPatch.Sqlite.csproj" />
+    <ProjectReference Include="..\EFCore.ReturningExtensions\EFCore.ReturningExtensions.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="[6.0.0, 7.0.0)" />
+  </ItemGroup>
+
+</Project>
