@@ -1,0 +1,20 @@
+<Solution>
+  <Folder Name="/SolutionItems/">
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Build.targets" />
+    <File Path="global.json" />
+    <File Path="Hosting.props" />
+    <File Path="LICENSE" />
+    <File Path="README.md" />
+    <File Path="Tests.props" />
+  </Folder>
+  <Project Path="EFCore.ReturningExtensions.MySql/EFCore.ReturningExtensions.MySql.csproj" />
+  <Project Path="EFCore.ReturningExtensions.NonQueryPatch.Sqlite/EFCore.ReturningExtensions.NonQueryPatch.Sqlite.csproj" Id="c344b61f-415b-47c9-b55c-3c8ae372dbd5" />
+  <Project Path="EFCore.ReturningExtensions.NonQueryPatch.SqlServer/EFCore.ReturningExtensions.NonQueryPatch.SqlServer.csproj" Id="079b8821-1fa8-4309-a003-7cabb4be90a1" />
+  <Project Path="EFCore.ReturningExtensions.NonQueryPatch/EFCore.ReturningExtensions.NonQueryPatch.csproj" />
+  <Project Path="EFCore.ReturningExtensions.Npgsql/EFCore.ReturningExtensions.Npgsql.csproj" />
+  <Project Path="EFCore.ReturningExtensions.Sqlite/EFCore.ReturningExtensions.Sqlite.csproj" />
+  <Project Path="EFCore.ReturningExtensions.SqlServer/EFCore.ReturningExtensions.SqlServer.csproj" />
+  <Project Path="EFCore.ReturningExtensions.Tests/EFCore.ReturningExtensions.Tests.csproj" />
+  <Project Path="EFCore.ReturningExtensions/EFCore.ReturningExtensions.csproj" />
+</Solution>

@@ -1,0 +1,12 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\EFCore.ReturningExtensions.NonQueryPatch.MySql\EFCore.ReturningExtensions.NonQueryPatch.MySql.csproj" />
+    <ProjectReference Include="..\EFCore.ReturningExtensions\EFCore.ReturningExtensions.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="[6.0.3, 7.0.0)" />
+  </ItemGroup>
+
+</Project>
