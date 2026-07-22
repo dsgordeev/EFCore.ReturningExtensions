@@ -103,7 +103,7 @@ internal class NpgsqlReturningQueryMethodTranslatingExpressionVisitor(
                                 {
                                     if (deletedList.Count > 0)
                                     {
-                                        var flags = deletedList[i];
+                                        var flags = i < deletedList.Count ? deletedList[i] : [];
 
                                         projections[i] = (ProjectionExpression)
                                             new ListedColumnExpressionVisitor(flags).Visit(projections[i]);

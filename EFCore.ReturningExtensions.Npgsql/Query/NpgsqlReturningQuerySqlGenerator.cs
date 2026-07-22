@@ -1,17 +1,17 @@
 ﻿using EFCore.ReturningExtensions.Expressions;
 using EFCore.ReturningExtensions.Npgsql.Expressions;
 using EFCore.ReturningExtensions.Npgsql.Extensions;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Infrastructure.Internal;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Query.Expressions.Internal;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Query.Internal;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.Mapping;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 using System.Reflection;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Query;
-using Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.Mapping;
 
 namespace EFCore.ReturningExtensions.Npgsql.Query;
 
@@ -96,6 +96,21 @@ internal class NpgsqlReturningQuerySqlGenerator(
 
             List<TableExpressionBase> tables = [.. selectExpression.Tables];
 
+            var aliasMap = expression.Projections
+                .GroupBy(x => ((ColumnExpression)x.Expression).TableAlias)
+                .Skip(1)
+                .ToDictionary(x => x.Key, _ => string.Empty);
+            
+            if (aliasMap.Count > 0)
+            {
+                var keys = aliasMap.Keys.ToArray();
+                var i = 0;
+                foreach (var targetAlias in tables[^(tables.Count - aliasMap.Count - 1)..].Select(x => ((JoinExpressionBase)x).Table.Alias))
+                {
+                    aliasMap[keys[i++]] = targetAlias!;
+                }
+            }
+
             if (_postgresVersion.Major <= 17)
             {
                 var tableAlias = tables.LastOrDefault() is JoinExpressionBase jsonExpression
@@ -110,11 +125,11 @@ internal class NpgsqlReturningQuerySqlGenerator(
                 var keys = model.FindEntityType(entityType)!.FindPrimaryKey()!.Properties;
 
                 var joinPredicate = (
-                    from key in keys 
-                    let left = new ColumnExpression(key.Name, tableAlias, key.ClrType, key.GetRelationalTypeMapping(), key.IsNullable) 
-                    let right = new ColumnExpression(key.Name, "OLD", key.ClrType, key.GetRelationalTypeMapping(), key.IsNullable) 
+                    from key in keys
+                    let left = new ColumnExpression(key.Name, tableAlias, key.ClrType, key.GetRelationalTypeMapping(), key.IsNullable)
+                    let right = new ColumnExpression(key.Name, "OLD", key.ClrType, key.GetRelationalTypeMapping(), key.IsNullable)
                     select new SqlBinaryExpression(ExpressionType.Equal, left, right, typeof(bool), NpgsqlBoolTypeMapping.Default))
-                    .Aggregate<SqlBinaryExpression, SqlBinaryExpression?>(null, (current, equality) => 
+                    .Aggregate<SqlBinaryExpression, SqlBinaryExpression?>(null, (current, equality) =>
                         current == null
                         ? equality
                         : new SqlBinaryExpression(ExpressionType.Equal, current, equality, typeof(bool), NpgsqlBoolTypeMapping.Default));
@@ -212,7 +227,15 @@ internal class NpgsqlReturningQuerySqlGenerator(
             {
                 if (i > 0) Sql.Append(", ");
                 var projection = expression.Projections[i];
-                Visit(new TableAliasSelector(updateExpression.Table.Alias, "OLD").Visit(projection));
+                if (projection.Expression is not ColumnExpression c ||
+                    !aliasMap.TryGetValue(c.TableAlias, out var alias))
+                {
+                    Visit(new TableAliasSelector(updateExpression.Table.Alias, "OLD").Visit(projection));
+                }
+                else
+                {
+                    Visit(new TableAliasSelector(alias, alias).Visit(projection));
+                }
             }
 
             return expression;
@@ -310,7 +333,7 @@ internal class NpgsqlReturningQuerySqlGenerator(
         Sql.Append(tableExpression.Alias == "OLD"
             ? tableExpression.Alias
             : Dependencies.SqlGenerationHelper.DelimitIdentifier(tableExpression.Alias));
-        
+
         return tableExpression;
     }
 
