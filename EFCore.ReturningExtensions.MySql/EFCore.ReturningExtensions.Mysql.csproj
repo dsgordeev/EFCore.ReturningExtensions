@@ -1,0 +1,11 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\EfCore.ReturningExtensions\EfCore.ReturningExtensions.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microting.EntityFrameworkCore.MySql" Version="[9.0.8, 10.0.0)" />
+  </ItemGroup>
+
+</Project>
