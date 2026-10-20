@@ -1,0 +1,90 @@
+<Project>
+
+  <PropertyGroup Condition="!$(MSBuildProjectName.EndsWith('.Tests'))">
+    <IsPackableProject>true</IsPackableProject>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(IsPackableProject)' == 'true'">
+    <PackageId>$(MSBuildProjectName)</PackageId>
+
+    <Version>9.2.1</Version>
+    <Authors>efcore-returning-extensions</Authors>
+    <Copyright>Copyright © 2026</Copyright>
+    <PackageProjectUrl>https://github.com/dsgordeev/EFCore.ReturningExtensions</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/dsgordeev/EFCore.ReturningExtensions</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <SignAssembly>false</SignAssembly>
+    <DelaySign>false</DelaySign>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(IsPackableProject)' == 'true'">
+    <_SuffixIndex>$([MSBuild]::Add($(MSBuildProjectName.LastIndexOf('.')), 1))</_SuffixIndex>
+    <DbProviderSuffix>$(MSBuildProjectName.Substring($(_SuffixIndex)))</DbProviderSuffix>
+  </PropertyGroup>
+
+  <!-- Per-provider inputs -->
+
+  <PropertyGroup Condition="'$(IsPackableProject)' == 'true' And '$(DbProviderSuffix)' == 'Npgsql'">
+    <_ProviderFullName>PostgreSQL/Npgsql</_ProviderFullName>
+    <_ProviderKeyword>postgresql;npgsql</_ProviderKeyword>
+    <_ProviderClause>RETURNING</_ProviderClause>
+    <_ProviderTagsSuffix></_ProviderTagsSuffix>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(IsPackableProject)' == 'true' And '$(DbProviderSuffix)' == 'SqlServer'">
+    <_ProviderFullName>SQL Server</_ProviderFullName>
+    <_ProviderKeyword>sqlserver;mssql</_ProviderKeyword>
+    <_ProviderClause>OUTPUT</_ProviderClause>
+    <_ProviderTagsSuffix>;output-clause</_ProviderTagsSuffix>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(IsPackableProject)' == 'true' And '$(DbProviderSuffix)' == 'Sqlite'">
+    <_ProviderFullName>Sqlite</_ProviderFullName>
+    <_ProviderKeyword>sqlite</_ProviderKeyword>
+    <_ProviderClause>RETURNING</_ProviderClause>
+    <_ProviderTagsSuffix></_ProviderTagsSuffix>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(IsPackableProject)' == 'true' And '$(DbProviderSuffix)' == 'Oracle'">
+    <_ProviderFullName>Oracle</_ProviderFullName>
+    <_ProviderKeyword>oracle</_ProviderKeyword>
+    <_ProviderClause>RETURNING</_ProviderClause>
+    <_ProviderTagsSuffix></_ProviderTagsSuffix>
+  </PropertyGroup>
+
+  <!-- Classify -->
+
+  <PropertyGroup Condition="'$(IsPackableProject)' == 'true'">
+    <IsDbProvider Condition="'$(_ProviderFullName)' != ''">true</IsDbProvider>
+    <IsDbProvider Condition="'$(IsDbProvider)' != 'true'">false</IsDbProvider>
+
+    <IsCoreProject Condition="'$(IsDbProvider)' != 'true'">true</IsCoreProject>
+    <IsCoreProject Condition="'$(IsCoreProject)' != 'true'">false</IsCoreProject>
+  </PropertyGroup>
+
+  <!-- Core metadata -->
+
+  <PropertyGroup Condition="'$(IsCoreProject)' == 'true'">
+    <Title>EF Core Returning Extensions Core</Title>
+    <Description>Core library for EF Core extensions that add UPDATE and DELETE operations with RETURNING/OUTPUT clause support. Contains base abstractions, expression types, and extension methods.</Description>
+    <PackageTags>efcore;entity-framework-core;returning;output;update;delete</PackageTags>
+  </PropertyGroup>
+
+  <!-- DB-provider metadata (derived from the templates) -->
+
+  <PropertyGroup Condition="'$(IsDbProvider)' == 'true'">
+    <Title>EF Core Returning Extensions for $(_ProviderFullName)</Title>
+    <Description>$(_ProviderFullName) provider implementation for EF Core RETURNING clause extensions. Adds support for UPDATE and DELETE operations with $(_ProviderClause) clause returning affected rows data.</Description>
+    <PackageTags>efcore;entity-framework-core;$(_ProviderKeyword);output;returning;update;delete$(_ProviderTagsSuffix)</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(IsPackableProject)' == 'true'">
+    <None Update="README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
+
+</Project>
