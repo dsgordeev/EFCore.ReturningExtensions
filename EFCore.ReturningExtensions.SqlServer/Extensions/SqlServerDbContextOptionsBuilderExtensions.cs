@@ -1,0 +1,56 @@
+﻿using EFCore.ReturningExtensions.SqlServer.Query;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Query;
+using Microsoft.Extensions.DependencyInjection;
+
+namespace EFCore.ReturningExtensions.SqlServer.Extensions;
+
+public static class SqlServerDbContextOptionsBuilderExtensions
+{
+    public static SqlServerDbContextOptionsBuilder UseReturningExtensions(
+        this SqlServerDbContextOptionsBuilder sqlServerOptionsBuilder, bool useInject = true)
+    {
+        IRelationalDbContextOptionsBuilderInfrastructure infrastructure = sqlServerOptionsBuilder;
+        IDbContextOptionsBuilderInfrastructure optionsBuilder = infrastructure.OptionsBuilder;
+
+        var extension = infrastructure.OptionsBuilder
+                            .Options
+                            .FindExtension<ReturningExtensionsSqlServerOptionsExtension>()
+                        ?? new ReturningExtensionsSqlServerOptionsExtension(useInject);
+
+        optionsBuilder.AddOrUpdateExtension(extension);
+
+        return sqlServerOptionsBuilder;
+    }
+
+    internal class ReturningExtensionsSqlServerOptionsExtension(bool useInject) : IDbContextOptionsExtension
+    {
+        public DbContextOptionsExtensionInfo Info => new ExtensionInfo(this);
+        public bool UseInject { get; } = useInject;
+
+        public void ApplyServices(IServiceCollection services)
+        {
+            services.AddScoped<IQuerySqlGeneratorFactory, SqlServerReturningQuerySqlGeneratorFactory>();
+            services.AddScoped<IQueryableMethodTranslatingExpressionVisitorFactory, SqlServerReturningQueryMethodTranslatingExpressionVisitorFactory>();
+            if (!UseInject)
+            {
+                services.AddScoped<IQueryTranslationPostprocessorFactory, SqlServerReturningQueryTranslationPostprocessorFactory>();
+                services.AddScoped<IShapedQueryCompilingExpressionVisitorFactory, ReturningRelationalShapedQueryCompilingVisitorFactory>();
+                services.AddScoped<IRelationalParameterBasedSqlProcessorFactory, SqlServerReturningRelationalParameterBasedSqlProcessorFactory>();
+            }
+        }
+
+        public void Validate(IDbContextOptions options) { }
+
+        private class ExtensionInfo(IDbContextOptionsExtension extension) : DbContextOptionsExtensionInfo(extension)
+        {
+            public override bool IsDatabaseProvider => false;
+            public override string LogFragment => "using ReturningExtensionsSqlServer ";
+            public override int GetServiceProviderHashCode() => 0;
+            public override bool ShouldUseSameServiceProvider(DbContextOptionsExtensionInfo other)
+                => other is ExtensionInfo;
+            public override void PopulateDebugInfo(IDictionary<string, string> debugInfo) { }
+        }
+    }
+}
+
