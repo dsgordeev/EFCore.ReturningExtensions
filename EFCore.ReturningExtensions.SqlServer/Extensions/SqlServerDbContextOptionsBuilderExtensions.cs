@@ -8,7 +8,7 @@ namespace EFCore.ReturningExtensions.SqlServer.Extensions;
 public static class SqlServerDbContextOptionsBuilderExtensions
 {
     public static SqlServerDbContextOptionsBuilder UseReturningExtensions(
-        this SqlServerDbContextOptionsBuilder sqlServerOptionsBuilder)
+        this SqlServerDbContextOptionsBuilder sqlServerOptionsBuilder, bool useInject = true)
     {
         IRelationalDbContextOptionsBuilderInfrastructure infrastructure = sqlServerOptionsBuilder;
         IDbContextOptionsBuilderInfrastructure optionsBuilder = infrastructure.OptionsBuilder;
@@ -16,21 +16,24 @@ public static class SqlServerDbContextOptionsBuilderExtensions
         var extension = infrastructure.OptionsBuilder
                             .Options
                             .FindExtension<ReturningExtensionsSqlServerOptionsExtension>()
-                        ?? new ReturningExtensionsSqlServerOptionsExtension();
+                        ?? new ReturningExtensionsSqlServerOptionsExtension(useInject);
 
         optionsBuilder.AddOrUpdateExtension(extension);
 
         return sqlServerOptionsBuilder;
     }
 
-    internal class ReturningExtensionsSqlServerOptionsExtension : IDbContextOptionsExtension
+    internal class ReturningExtensionsSqlServerOptionsExtension(bool useInject) : IDbContextOptionsExtension
     {
         public DbContextOptionsExtensionInfo Info => new ExtensionInfo(this);
+        public bool UseInject { get; } = useInject;
 
         public void ApplyServices(IServiceCollection services)
         {
             services.AddScoped<IQuerySqlGeneratorFactory, SqlServerReturningQuerySqlGeneratorFactory>();
             services.AddScoped<IQueryableMethodTranslatingExpressionVisitorFactory, SqlServerReturningQueryMethodTranslatingExpressionVisitorFactory>();
+            services.AddScoped<IQueryTranslationPostprocessorFactory, SqlServerReturningQueryTranslationPostprocessorFactory>();
+            services.AddScoped<IShapedQueryCompilingExpressionVisitorFactory, ReturningRelationalShapedQueryCompilingVisitorFactory>();
         }
 
         public void Validate(IDbContextOptions options) { }

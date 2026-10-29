@@ -9,7 +9,7 @@ namespace EFCore.ReturningExtensions.Npgsql.Extensions;
 public static class NpgsqlDbContextOptionsBuilderExtensions
 {
     public static NpgsqlDbContextOptionsBuilder UseReturningExtensions(
-        this NpgsqlDbContextOptionsBuilder npgsqlOptionsBuilder)
+        this NpgsqlDbContextOptionsBuilder npgsqlOptionsBuilder, bool useInject = true)
     {
         IRelationalDbContextOptionsBuilderInfrastructure infrastructure = npgsqlOptionsBuilder;
         IDbContextOptionsBuilderInfrastructure optionsBuilder = infrastructure.OptionsBuilder;
@@ -17,21 +17,24 @@ public static class NpgsqlDbContextOptionsBuilderExtensions
         var extension = infrastructure.OptionsBuilder
                             .Options
                             .FindExtension<ReturningExtensionsNpgsqlOptionsExtension>()
-                        ?? new ReturningExtensionsNpgsqlOptionsExtension();
+                        ?? new ReturningExtensionsNpgsqlOptionsExtension(useInject);
 
         optionsBuilder.AddOrUpdateExtension(extension);
 
         return npgsqlOptionsBuilder;
     }
 
-    internal class ReturningExtensionsNpgsqlOptionsExtension : IDbContextOptionsExtension
+    internal class ReturningExtensionsNpgsqlOptionsExtension(bool useInject) : IDbContextOptionsExtension
     {
         public DbContextOptionsExtensionInfo Info => new ExtensionInfo(this);
+        public bool UseInject { get; } = useInject;
 
         public void ApplyServices(IServiceCollection services)
         {
             services.AddScoped<IQuerySqlGeneratorFactory, NpgsqlReturningQuerySqlGeneratorFactory>();
             services.AddScoped<IQueryableMethodTranslatingExpressionVisitorFactory, NpgsqlReturningQueryMethodTranslatingExpressionVisitorFactory>();
+            services.AddScoped<IQueryTranslationPostprocessorFactory, NpgsqlReturningQueryTranslationPostprocessorFactory>();
+            services.AddScoped<IShapedQueryCompilingExpressionVisitorFactory, ReturningRelationalShapedQueryCompilingVisitorFactory>();
         }
 
         public void Validate(IDbContextOptions options) { }

@@ -67,7 +67,7 @@ internal class NpgsqlReturningQuerySqlGenerator(
             && selectExpression.Having == null
             && selectExpression.Orderings.Count == 0
             && selectExpression.GroupBy.Count == 0
-            && selectExpression.Projection.Count == 0
+            //&& selectExpression.Projection.Count == 0
             && (selectExpression.Tables.Count == 1
                 || !ReferenceEquals(selectExpression.Tables[0], updateExpression.Table)
                 || selectExpression.Tables[1] is InnerJoinExpression
@@ -223,8 +223,25 @@ internal class NpgsqlReturningQuerySqlGenerator(
 
     protected Expression VisitReturningDelete(ReturningDeleteExpression expression)
     {
+        var deleteExpression = expression.DeleteExpression;
+
+        if (expression.DeleteExpression.SelectExpression.Projection.Count > 0)
+        {
+            deleteExpression = deleteExpression.Update(
+                deleteExpression.Table, 
+                deleteExpression.SelectExpression.Update(
+                    deleteExpression.SelectExpression.Tables,
+                    deleteExpression.SelectExpression.Predicate,
+                    deleteExpression.SelectExpression.GroupBy,
+                    deleteExpression.SelectExpression.Having,
+                    projections: [],
+                    deleteExpression.SelectExpression.Orderings,
+                    deleteExpression.SelectExpression.Offset,
+                    deleteExpression.SelectExpression.Limit));
+        }
+
         var pgDeleteExpression = (PgDeleteExpression)
-            new NpgsqlDeleteConvertingExpressionVisitor().Process(expression.DeleteExpression);
+            new NpgsqlDeleteConvertingExpressionVisitor().Process(deleteExpression);
 
         Sql.Append("DELETE FROM ");
         Visit(pgDeleteExpression.Table);

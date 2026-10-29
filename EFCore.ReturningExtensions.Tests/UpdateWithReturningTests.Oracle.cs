@@ -1,7 +1,6 @@
 ﻿using EFCore.ReturningExtensions.Extensions;
 using EFCore.ReturningExtensions.Tests.Data;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace EFCore.ReturningExtensions.Tests;
 
@@ -14,7 +13,6 @@ public sealed partial class UpdateWithReturningTests
         public void Updated_WhenAndMixed_ReturnUpdateWithOutputClause()
         {
             // Arrange
-            using var scope = ServiceProvider.CreateScope();
             using var ctx = GetDbContext();
 
             // Act
@@ -44,7 +42,6 @@ public sealed partial class UpdateWithReturningTests
         public void Updated_WhenAndDeletedOnly_ReturnUpdateWithOutputClause()
         {
             // Arrange
-            using var scope = ServiceProvider.CreateScope();
             using var ctx = GetDbContext();
 
             // Act
@@ -74,7 +71,6 @@ public sealed partial class UpdateWithReturningTests
         public void Updated_WhenFallback_ReturnUpdateWithOutputClause()
         {
             // Arrange
-            using var scope = ServiceProvider.CreateScope();
             using var ctx = GetDbContext();
 
             // Act
@@ -104,7 +100,6 @@ public sealed partial class UpdateWithReturningTests
         public void Updated_WhenAndParameter_ReturnUpdateWithOutputClause()
         {
             // Arrange
-            using var scope = ServiceProvider.CreateScope();
             using var ctx = GetDbContext();
 
             var hundred = 10 * 10;
@@ -150,7 +145,6 @@ public sealed partial class UpdateWithReturningTests
         public void Updated_When_ReturnUpdateWithOutputClause()
         {
             // Arrange
-            using var scope = ServiceProvider.CreateScope();
             using var ctx = GetDbContext();
 
             // Act

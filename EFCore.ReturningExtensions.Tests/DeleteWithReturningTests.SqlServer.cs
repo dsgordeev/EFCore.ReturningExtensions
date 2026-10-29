@@ -1,7 +1,6 @@
 ﻿using EFCore.ReturningExtensions.Extensions;
 using EFCore.ReturningExtensions.Tests.Data;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace EFCore.ReturningExtensions.Tests;
 
@@ -14,7 +13,6 @@ public sealed partial class DeleteWithReturningTests
         public void Deleted_WhenParameter_ReturnDeleteWithOutputClause()
         {
             // Arrange
-            using var scope = ServiceProvider.CreateScope();
             using var ctx = GetDbContext();
 
             var hundred = 10 * 10;
@@ -27,26 +25,25 @@ public sealed partial class DeleteWithReturningTests
                 .Deleted(x => new { x.Id, Name = x.Name + "_" });
 
             // Assert
-            Assert.AreEqual("""
-                            DECLARE @p int = 10000;
+            Assert.AreEqual($"""
+                         DECLARE @p int = 10000;
 
-                            DELETE [u]
-                            OUTPUT [DELETED].[Id], [DELETED].[Name] + N'_' AS [Name]
-                            FROM [User] AS [u]
-                            INNER JOIN (
-                                SELECT [u0].[Id], [u0].[Name]
-                                FROM [User] AS [u0]
-                                WHERE CAST(LEN([u0].[Name]) AS int) < @p
-                            ) AS [u1] ON [u].[Id] = [u1].[Id]
-                            WHERE [u].[Name] = N'A' OR [u].[Name] = N'B'
-                            """, query.ToQueryString());
+                         DELETE [u]
+                         OUTPUT [DELETED].[Id], [DELETED].[Name] + N'_' AS [Name]
+                         FROM [User] AS [u]
+                         INNER JOIN (
+                             SELECT [u0].[Id], [u0].[Name]
+                             FROM [User] AS [u0]
+                             WHERE CAST(LEN([u0].[Name]) AS int) < @p
+                         ) AS [u1] ON [u].[Id] = [u1].[Id]
+                         WHERE [u].[Name] = N'A' OR [u].[Name] = N'B'
+                         """, query.ToQueryString());
         }
 
         [TestMethod]
         public void Deleted_WhenParameterLess_ReturnDeleteWithOutputClause()
         {
             // Arrange
-            using var scope = ServiceProvider.CreateScope();
             using var ctx = GetDbContext();
 
             // Act
@@ -57,17 +54,17 @@ public sealed partial class DeleteWithReturningTests
                 .Deleted(x => new { x.Id, Name = x.Name + "_" });
 
             // Assert
-            Assert.AreEqual("""
-                            DELETE [u]
-                            OUTPUT [DELETED].[Id], [DELETED].[Name] + N'_' AS [Name]
-                            FROM [User] AS [u]
-                            INNER JOIN (
-                                SELECT [u0].[Id], [u0].[Name]
-                                FROM [User] AS [u0]
-                                WHERE CAST(LEN([u0].[Name]) AS int) < 10000
-                            ) AS [u1] ON [u].[Id] = [u1].[Id]
-                            WHERE [u].[Name] = N'A' OR [u].[Name] = N'B'
-                            """, query.ToQueryString());
+            Assert.AreEqual($"""
+                         DELETE [u]
+                         OUTPUT [DELETED].[Id], [DELETED].[Name] + N'_' AS [Name]
+                         FROM [User] AS [u]
+                         INNER JOIN (
+                             SELECT [u0].[Id], [u0].[Name]
+                             FROM [User] AS [u0]
+                             WHERE CAST(LEN([u0].[Name]) AS int) < 10000
+                         ) AS [u1] ON [u].[Id] = [u1].[Id]
+                         WHERE [u].[Name] = N'A' OR [u].[Name] = N'B'
+                         """, query.ToQueryString());
         }
     }
 }

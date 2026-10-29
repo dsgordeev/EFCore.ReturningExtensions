@@ -9,7 +9,7 @@ namespace EFCore.ReturningExtensions.Oracle.Extensions;
 public static class OracleDbContextOptionsBuilderExtensions
 {
     public static OracleDbContextOptionsBuilder UseReturningExtensions(
-        this OracleDbContextOptionsBuilder oracleOptionsBuilder)
+        this OracleDbContextOptionsBuilder oracleOptionsBuilder, bool useInject = true)
     {
         IRelationalDbContextOptionsBuilderInfrastructure infrastructure = oracleOptionsBuilder;
         IDbContextOptionsBuilderInfrastructure optionsBuilder = infrastructure.OptionsBuilder;

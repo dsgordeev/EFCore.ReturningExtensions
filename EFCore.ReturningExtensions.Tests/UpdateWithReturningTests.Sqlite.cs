@@ -1,7 +1,6 @@
 ﻿using EFCore.ReturningExtensions.Extensions;
 using EFCore.ReturningExtensions.Tests.Data;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace EFCore.ReturningExtensions.Tests;
 
@@ -14,7 +13,6 @@ public sealed partial class UpdateWithReturningTests
         public void Updated_WhenSqliteAndMixed_ReturnUpdateWithOutputClause()
         {
             // Arrange
-            using var scope = ServiceProvider.CreateScope();
             using var ctx = GetDbContext();
 
             // Act
@@ -44,7 +42,6 @@ public sealed partial class UpdateWithReturningTests
         public void Updated_WhenSqliteAndDeletedOnly_ReturnUpdateWithOutputClause()
         {
             // Arrange
-            using var scope = ServiceProvider.CreateScope();
             using var ctx = GetDbContext();
 
             // Act
@@ -74,12 +71,7 @@ public sealed partial class UpdateWithReturningTests
         public void Updated_WhenSqliteFallback_ReturnUpdateWithOutputClause()
         {
             // Arrange
-            using var scope = new ServiceCollection()
-                .AddDbContext<SqliteUsersDbContext>()
-                .BuildServiceProvider()
-                .CreateScope();
-
-            using var ctx = scope.ServiceProvider.GetRequiredService<SqliteUsersDbContext>();
+            using var ctx = GetDbContext();
 
             // Act
             var query = ctx.Users
@@ -108,12 +100,7 @@ public sealed partial class UpdateWithReturningTests
         public void Updated_WhenSqliteAndParameter_ReturnUpdateWithReturningClause()
         {
             // Arrange
-            using var scope = new ServiceCollection()
-                .AddDbContext<SqliteUsersDbContext>()
-                .BuildServiceProvider()
-                .CreateScope();
-
-            using var ctx = scope.ServiceProvider.GetRequiredService<SqliteUsersDbContext>();
+            using var ctx = GetDbContext();
 
             var hundred = 10 * 10;
 
@@ -147,12 +134,7 @@ public sealed partial class UpdateWithReturningTests
         public void Updated_WhenSqlite_ReturnUpdateWithReturningClause()
         {
             // Arrange
-            using var scope = new ServiceCollection()
-                .AddDbContext<SqliteUsersDbContext>()
-                .BuildServiceProvider()
-                .CreateScope();
-
-            using var ctx = scope.ServiceProvider.GetRequiredService<SqliteUsersDbContext>();
+            using var ctx = GetDbContext();
 
             // Act
             var query = ctx.Users

@@ -6,19 +6,24 @@ namespace EFCore.ReturningExtensions.Tests;
 public abstract class UpdateWithReturningTests<TDbContext> : IDisposable
     where TDbContext : UsersDbContext
 {
-    private protected ServiceProvider ServiceProvider => new ServiceCollection()
-        .AddDbContext<SqlUsersDbContext>()
-        .AddDbContext<PgUsersDbContext>()
-        .AddDbContext<Pg18UsersDbContext>()
-        .AddDbContext<SqliteUsersDbContext>()
-        .AddDbContext<OracleUsersDbContext>()
-        .BuildServiceProvider();
+    private ServiceProvider? _serviceProvider;
 
-    protected TDbContext GetDbContext() => ServiceProvider.CreateScope().ServiceProvider.GetRequiredService<TDbContext>();
+    [TestInitialize]
+    public void TestInitialize()
+    {
+        _serviceProvider = new ServiceCollection()
+            .AddDbContext<TDbContext>()
+            .BuildServiceProvider();
+    }
+
+    protected TDbContext GetDbContext()
+    {
+        return _serviceProvider!.CreateScope().ServiceProvider.GetRequiredService<TDbContext>();
+    }
 
     public void Dispose()
     {
         GC.SuppressFinalize(this);
-        ServiceProvider.Dispose();
+        _serviceProvider?.Dispose();
     }
 }

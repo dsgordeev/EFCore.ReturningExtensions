@@ -1,6 +1,7 @@
 ﻿using EFCore.ReturningExtensions.Expressions;
 using EFCore.ReturningExtensions.Extensions;
 using EFCore.ReturningExtensions.SqlServer.Expressions;
+using EFCore.ReturningExtensions.SqlServer.Query.Extensions;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
@@ -8,7 +9,7 @@ using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 using System.Linq.Expressions;
 using System.Reflection;
-using EFCore.ReturningExtensions.SqlServer.Query.Extensions;
+using EFCore.ReturningExtensions.SqlServer.Extensions;
 
 namespace EFCore.ReturningExtensions.SqlServer.Query;
 
@@ -142,9 +143,17 @@ internal class SqlServerReturningQueryMethodTranslatingExpressionVisitor : SqlSe
 
                         var update = TranslateExecuteUpdate(shapedQueryExpression, array)!;
 
+                        var projectionField = typeof(SelectExpression).GetField("_projection", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.GetField)!;
+                        var projectionFieldValue = (List<ProjectionExpression>)projectionField.GetValue(update.SelectExpression)!;
+                        if (projectionFieldValue.Count == 0)
+                        {
+                            projectionFieldValue.AddRange(projections);
+                        }
+
                         var returningUpdateExpression = new ReturningUpdateExpression(
                             update,
-                            projections);
+                            projections,
+                            shapedQueryExpression.Type);
 
                         var stubSelectSource = Visit(methodCallExpression.Arguments[3]);
 
@@ -152,10 +161,31 @@ internal class SqlServerReturningQueryMethodTranslatingExpressionVisitor : SqlSe
                             (ShapedQueryExpression)stubSelectSource,
                             UnwrapLambdaFromQuote(methodCallExpression.Arguments[2]));
 
-                        var enrichedSelectExpression = ((SelectExpression)stubSelect.QueryExpression)
-                            .AppendExpressionAnnotation(returningUpdateExpression);
+                        var projectionMappingField = typeof(SelectExpression).GetField("_projectionMapping", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.GetField)!;
+                        var sourceValue = ((Dictionary<ProjectionMember, Expression>)projectionMappingField.GetValue(stubSelect.QueryExpression)!)
+                            .ToDictionary(y => y.Key, y => y.Value);
 
-                        return stubSelect.UpdateQueryExpression(enrichedSelectExpression);
+                        var targetValue = (Dictionary<ProjectionMember, Expression>)projectionMappingField.GetValue(returningUpdateExpression.UpdateExpression.SelectExpression)!;
+                        if (targetValue.Count == 0)
+                        {
+                            foreach (var (k, v) in sourceValue)
+                            {
+                                targetValue.Add(k, v);
+                            }
+                        }
+
+                        var info = QueryCompilationContext.ContextOptions
+                            .FindExtension<SqlServerDbContextOptionsBuilderExtensions.ReturningExtensionsSqlServerOptionsExtension>()!;
+
+                        if (info.UseInject)
+                        {
+                            var enrichedSelectExpression = ((SelectExpression)stubSelect.QueryExpression)
+                                .AppendExpressionAnnotation(returningUpdateExpression);
+
+                            return stubSelect.UpdateQueryExpression(enrichedSelectExpression);
+                        }
+
+                        return stubSelect.UpdateQueryExpression(returningUpdateExpression);
                 }
             }
         }
@@ -186,9 +216,17 @@ internal class SqlServerReturningQueryMethodTranslatingExpressionVisitor : SqlSe
 
                         var delete = TranslateExecuteDelete(shapedQueryExpression)!;
 
+                        var projectionField = typeof(SelectExpression).GetField("_projection", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.GetField)!;
+                        var projectionFieldValue = (List<ProjectionExpression>)projectionField.GetValue(delete.SelectExpression)!;
+                        if (projectionFieldValue.Count == 0)
+                        {
+                            projectionFieldValue.AddRange(projections);
+                        }
+
                         var returningDeleteExpression = new ReturningDeleteExpression(
                             delete,
-                            projections);
+                            projections,
+                            shapedQueryExpression.Type);
 
                         var stubSelectSource = Visit(methodCallExpression.Arguments[2]);
 
@@ -196,9 +234,31 @@ internal class SqlServerReturningQueryMethodTranslatingExpressionVisitor : SqlSe
                             (ShapedQueryExpression)stubSelectSource,
                             UnwrapLambdaFromQuote(methodCallExpression.Arguments[1]));
 
-                        var enrichedSelectExpression = ((SelectExpression)stubSelect.QueryExpression).AppendExpressionAnnotation(returningDeleteExpression);
+                        var projectionMappingField = typeof(SelectExpression).GetField("_projectionMapping", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.GetField)!;
+                        var sourceValue = ((Dictionary<ProjectionMember, Expression>)projectionMappingField.GetValue(stubSelect.QueryExpression)!)
+                            .ToDictionary(y => y.Key, y => y.Value);
 
-                        return stubSelect.UpdateQueryExpression(enrichedSelectExpression);
+                        var targetValue = (Dictionary<ProjectionMember, Expression>)projectionMappingField.GetValue(returningDeleteExpression.DeleteExpression.SelectExpression)!;
+                        if (targetValue.Count == 0)
+                        {
+                            foreach (var (k, v) in sourceValue)
+                            {
+                                targetValue.Add(k, v);
+                            }
+                        }
+
+                        var info = QueryCompilationContext.ContextOptions
+                            .FindExtension<SqlServerDbContextOptionsBuilderExtensions.ReturningExtensionsSqlServerOptionsExtension>()!;
+
+                        if (info.UseInject)
+                        {
+                            var enrichedSelectExpression = ((SelectExpression)stubSelect.QueryExpression)
+                                .AppendExpressionAnnotation(returningDeleteExpression);
+                            
+                            return stubSelect.UpdateQueryExpression(enrichedSelectExpression);
+                        }
+
+                        return stubSelect.UpdateQueryExpression(returningDeleteExpression);
                 }
             }
         }

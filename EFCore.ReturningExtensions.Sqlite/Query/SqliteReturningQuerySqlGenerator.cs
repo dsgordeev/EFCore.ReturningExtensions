@@ -49,7 +49,7 @@ internal class SqliteReturningQuerySqlGenerator(
                 Having: null,
                 Orderings: [],
                 GroupBy: [],
-                Projection: [],
+                //Projection: [],
             }
             && (selectExpression.Tables.Count == 1
                 || !ReferenceEquals(selectExpression.Tables[0], updateExpression.Table)
@@ -164,7 +164,7 @@ internal class SqliteReturningQuerySqlGenerator(
                 Tables: [var table],
                 GroupBy: [],
                 Having: null,
-                Projection: [],
+                //Projection: [],
                 Orderings: [],
                 Offset: null,
                 Limit: null

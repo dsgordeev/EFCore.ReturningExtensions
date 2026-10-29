@@ -139,7 +139,8 @@ internal class OracleReturningQueryMethodTranslatingExpressionVisitor : OracleQu
 
                         var returningUpdateExpression = new ReturningUpdateExpression(
                             update,
-                            projections);
+                            projections,
+                            shapedQueryExpression.Type);
 
                         var stubSelectSource = Visit(methodCallExpression.Arguments[3]);
 
@@ -183,7 +184,8 @@ internal class OracleReturningQueryMethodTranslatingExpressionVisitor : OracleQu
 
                         var returningDeleteExpression = new ReturningDeleteExpression(
                             delete,
-                            projections);
+                            projections,
+                            shapedQueryExpression.Type);
 
                         var stubSelectSource = Visit(methodCallExpression.Arguments[2]);
 

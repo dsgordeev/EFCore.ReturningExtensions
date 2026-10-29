@@ -52,8 +52,8 @@ internal class SqlServerReturningQuerySqlGenerator(
         if (selectExpression.Offset == null
             && selectExpression.Having == null
             && selectExpression.Orderings.Count == 0
-            && selectExpression.GroupBy.Count == 0
-            && selectExpression.Projection.Count == 0)
+            && selectExpression.GroupBy.Count == 0)
+            // && selectExpression.Projection.Count == 0)
         {
             Sql.Append("UPDATE ");
             GenerateTop(selectExpression);
@@ -108,8 +108,8 @@ internal class SqlServerReturningQuerySqlGenerator(
         if (selectExpression.Offset == null
             && selectExpression.Having == null
             && selectExpression.Orderings.Count == 0
-            && selectExpression.GroupBy.Count == 0
-            && selectExpression.Projection.Count == 0)
+            && selectExpression.GroupBy.Count == 0)
+            //&& selectExpression.Projection.Count == 0)
         {
             Sql.Append("DELETE ");
             GenerateTop(selectExpression);

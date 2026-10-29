@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Sqlite.Query.Internal;
 using System.Linq.Expressions;
 using System.Reflection;
+using EFCore.ReturningExtensions.Sqlite.Extensions;
 using EFCore.ReturningExtensions.Sqlite.Query.Extensions;
 
 namespace EFCore.ReturningExtensions.Sqlite.Query;
@@ -130,9 +131,17 @@ internal class SqliteReturningQueryMethodTranslatingExpressionVisitor(
 
                         var update = TranslateExecuteUpdate(shapedQueryExpression, array)!;
 
+                        var projectionField = typeof(SelectExpression).GetField("_projection", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.GetField)!;
+                        var projectionFieldValue = (List<ProjectionExpression>)projectionField.GetValue(update.SelectExpression)!;
+                        if (projectionFieldValue.Count == 0)
+                        {
+                            projectionFieldValue.AddRange(projections);
+                        }
+
                         var returningUpdateExpression = new ReturningUpdateExpression(
                             update,
-                            projections);
+                            projections,
+                            shapedQueryExpression.Type);
 
                         var stubSelectSource = Visit(methodCallExpression.Arguments[3]);
 
@@ -140,10 +149,31 @@ internal class SqliteReturningQueryMethodTranslatingExpressionVisitor(
                             (ShapedQueryExpression)stubSelectSource,
                             UnwrapLambdaFromQuote(methodCallExpression.Arguments[2]));
 
-                        var enrichedSelectExpression = ((SelectExpression)stubSelect.QueryExpression)
-                            .AppendExpressionAnnotation(returningUpdateExpression);
+                        var projectionMappingField = typeof(SelectExpression).GetField("_projectionMapping", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.GetField)!;
+                        var sourceValue = ((Dictionary<ProjectionMember, Expression>)projectionMappingField.GetValue(stubSelect.QueryExpression)!)
+                            .ToDictionary(y => y.Key, y => y.Value);
 
-                        return stubSelect.UpdateQueryExpression(enrichedSelectExpression);
+                        var targetValue = (Dictionary<ProjectionMember, Expression>)projectionMappingField.GetValue(returningUpdateExpression.UpdateExpression.SelectExpression)!;
+                        if (targetValue.Count == 0)
+                        {
+                            foreach (var (k, v) in sourceValue)
+                            {
+                                targetValue.Add(k, v);
+                            }
+                        }
+
+                        var info = QueryCompilationContext.ContextOptions
+                            .FindExtension<SqliteDbContextOptionsBuilderExtensions.ReturningExtensionsSqliteOptionsExtension>()!;
+
+                        if (info.UseInject)
+                        {
+                            var enrichedSelectExpression = ((SelectExpression)stubSelect.QueryExpression)
+                                .AppendExpressionAnnotation(returningUpdateExpression);
+
+                            return stubSelect.UpdateQueryExpression(enrichedSelectExpression);
+                        }
+
+                        return stubSelect.UpdateQueryExpression(returningUpdateExpression);
                 }
             }
         }
@@ -174,9 +204,17 @@ internal class SqliteReturningQueryMethodTranslatingExpressionVisitor(
 
                         var delete = TranslateExecuteDelete(shapedQueryExpression)!;
 
+                        var projectionField = typeof(SelectExpression).GetField("_projection", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.GetField)!;
+                        var projectionFieldValue = (List<ProjectionExpression>)projectionField.GetValue(delete.SelectExpression)!;
+                        if (projectionFieldValue.Count == 0)
+                        {
+                            projectionFieldValue.AddRange(projections);
+                        }
+
                         var returningDeleteExpression = new ReturningDeleteExpression(
                             delete,
-                            projections);
+                            projections,
+                            shapedQueryExpression.Type);
 
                         var stubSelectSource = Visit(methodCallExpression.Arguments[2]);
 
@@ -184,9 +222,31 @@ internal class SqliteReturningQueryMethodTranslatingExpressionVisitor(
                             (ShapedQueryExpression)stubSelectSource,
                             UnwrapLambdaFromQuote(methodCallExpression.Arguments[1]));
 
-                        var enrichedSelectExpression = ((SelectExpression)stubSelect.QueryExpression).AppendExpressionAnnotation(returningDeleteExpression);
+                        var projectionMappingField = typeof(SelectExpression).GetField("_projectionMapping", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.GetField)!;
+                        var sourceValue = ((Dictionary<ProjectionMember, Expression>)projectionMappingField.GetValue(stubSelect.QueryExpression)!)
+                            .ToDictionary(y => y.Key, y => y.Value);
 
-                        return stubSelect.UpdateQueryExpression(enrichedSelectExpression);
+                        var targetValue = (Dictionary<ProjectionMember, Expression>)projectionMappingField.GetValue(returningDeleteExpression.DeleteExpression.SelectExpression)!;
+                        if (targetValue.Count == 0)
+                        {
+                            foreach (var (k, v) in sourceValue)
+                            {
+                                targetValue.Add(k, v);
+                            }
+                        }
+
+                        var info = QueryCompilationContext.ContextOptions
+                            .FindExtension<SqliteDbContextOptionsBuilderExtensions.ReturningExtensionsSqliteOptionsExtension>()!;
+
+                        if (info.UseInject)
+                        {
+                            var enrichedSelectExpression = ((SelectExpression)stubSelect.QueryExpression)
+                                .AppendExpressionAnnotation(returningDeleteExpression);
+
+                            return stubSelect.UpdateQueryExpression(enrichedSelectExpression);
+                        }
+
+                        return stubSelect.UpdateQueryExpression(returningDeleteExpression);
                 }
             }
         }

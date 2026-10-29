@@ -1,7 +1,6 @@
 ﻿using EFCore.ReturningExtensions.Extensions;
 using EFCore.ReturningExtensions.Tests.Data;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace EFCore.ReturningExtensions.Tests;
 
@@ -14,7 +13,6 @@ public sealed partial class DeleteWithReturningTests
         public void Deleted_WhenParameter_ReturnDeleteWithReturningClause()
         {
             // Arrange
-            using var scope = ServiceProvider.CreateScope();
             using var ctx = GetDbContext();
 
             var hundred = 10 * 10;
@@ -49,7 +47,6 @@ public sealed partial class DeleteWithReturningTests
         public void Deleted_WhenParameterLess_ReturnDeleteWithReturningClause()
         {
             // Arrange
-            using var scope = ServiceProvider.CreateScope();
             using var ctx = GetDbContext();
 
             // Act

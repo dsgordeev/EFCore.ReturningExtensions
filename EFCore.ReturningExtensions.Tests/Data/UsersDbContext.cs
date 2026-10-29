@@ -8,6 +8,8 @@ namespace EFCore.ReturningExtensions.Tests.Data;
 
 public abstract class UsersDbContext(DbContextOptions options) : DbContext(options)
 {
+    protected bool UseInject = false;
+
     public DbSet<User> Users { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -29,7 +31,7 @@ public class SqlUsersDbContext(DbContextOptions<SqlUsersDbContext> options) : Us
     {
         optionsBuilder.UseSqlServer(connectionString: string.Empty, o =>
         {
-            o.UseReturningExtensions();
+            o.UseReturningExtensions(UseInject);
         });
     }
 }
@@ -40,7 +42,7 @@ public class PgUsersDbContext(DbContextOptions<PgUsersDbContext> options) : User
     {
         optionsBuilder.UseNpgsql(connectionString: string.Empty, o =>
         {
-            o.UseReturningExtensions();
+            o.UseReturningExtensions(UseInject);
         });
     }
 }
@@ -52,7 +54,7 @@ public class Pg18UsersDbContext(DbContextOptions<Pg18UsersDbContext> options) : 
         optionsBuilder.UseNpgsql(connectionString: string.Empty, o =>
         {
             o.SetPostgresVersion(18, 0);
-            o.UseReturningExtensions();
+            o.UseReturningExtensions(UseInject);
         });
     }
 }
@@ -63,7 +65,7 @@ public class SqliteUsersDbContext(DbContextOptions<SqliteUsersDbContext> options
     {
         optionsBuilder.UseSqlite(connectionString: string.Empty, o =>
         {
-            o.UseReturningExtensions();
+            o.UseReturningExtensions(UseInject);
         });
     }
 }
@@ -75,7 +77,7 @@ public class OracleUsersDbContext(DbContextOptions<OracleUsersDbContext> options
         optionsBuilder.UseOracle(connectionString: "Data Source=server;User Id=user;Password=password;", o =>
         {
             o.UseOracleSQLCompatibility(OracleSQLCompatibility.DatabaseVersion23);
-            o.UseReturningExtensions();
+            o.UseReturningExtensions(UseInject);
         });
     }
 }
